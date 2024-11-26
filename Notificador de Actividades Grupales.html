@@ -1,0 +1,222 @@
+<html><head><base href="." />
+  <title>Notificador de Actividades Grupales</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --success: #4caf50;
+      --danger: #f44336;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+
+    .member-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .member {
+      background: #e3f2fd;
+      padding: 5px 10px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .remove-member {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .notifications {
+      margin-top: 30px;
+    }
+
+    .notification {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background: #e3f2fd;
+      border-left: 4px solid var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Notificador de Actividades Grupales</h1>
+    </div>
+
+    <div class="form-group">
+      <label for="member-input">Agregar Integrante:</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="email" id="member-input" placeholder="Correo electrónico">
+        <button class="btn btn-primary" onclick="addMember()">Agregar</button>
+      </div>
+    </div>
+
+    <div class="member-list" id="member-list">
+      <!-- Los miembros se agregarán aquí dinámicamente -->
+    </div>
+
+    <div class="form-group">
+      <label for="activity">Actividad:</label>
+      <input type="text" id="activity" placeholder="Nombre de la actividad">
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descripción:</label>
+      <textarea id="description" placeholder="Describe la actividad..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="date">Fecha y Hora:</label>
+      <input type="datetime-local" id="date">
+    </div>
+
+    <button class="btn btn-primary" onclick="sendNotification()">Enviar Notificación</button>
+
+    <div class="notifications" id="notifications">
+      <!-- Las notificaciones se mostrarán aquí -->
+    </div>
+  </div>
+
+  <script>
+    let members = [];
+
+    function addMember() {
+      const input = document.getElementById('member-input');
+      const email = input.value.trim();
+      
+      if (email && isValidEmail(email) && !members.includes(email)) {
+        members.push(email);
+        updateMemberList();
+        input.value = '';
+      } else {
+        alert('Por favor ingresa un correo electrónico válido y único');
+      }
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function removeMember(email) {
+      members = members.filter(m => m !== email);
+      updateMemberList();
+    }
+
+    function updateMemberList() {
+      const memberList = document.getElementById('member-list');
+      memberList.innerHTML = members.map(email => `
+        <div class="member">
+          <span>${email}</span>
+          <button class="remove-member" onclick="removeMember('${email}')">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    function sendNotification() {
+      const activity = document.getElementById('activity').value;
+      const description = document.getElementById('description').value;
+      const date = document.getElementById('date').value;
+
+      if (!activity || !description || !date || members.length === 0) {
+        alert('Por favor completa todos los campos y agrega al menos un integrante');
+        return;
+      }
+
+      // En un caso real, aquí se enviarían las notificaciones por email
+      // Por ahora, solo mostraremos la notificación en la interfaz
+      const notifications = document.getElementById('notifications');
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.innerHTML = `
+        <h3>${activity}</h3>
+        <p>${description}</p>
+        <p><strong>Fecha:</strong> ${new Date(date).toLocaleString()}</p>
+        <p><strong>Enviado a:</strong> ${members.join(', ')}</p>
+      `;
+      notifications.insertBefore(notification, notifications.firstChild);
+
+      // Limpiar formulario
+      document.getElementById('activity').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('date').value = '';
+      members = [];
+      updateMemberList();
+    }
+  </script>
+</body></html>
